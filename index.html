@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stealth Pass - Password Manager (Corrected)</title>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Internal CSS Start -->
+    <style>
+        /* --- Base Styles & Resets --- */
+        :root {
+            --font-family: 'Poppins', sans-serif;
+            --transition-speed: 0.3s;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: var(--font-family);
+            transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: inherit;
+            padding: 0.5em 1em;
+            border-radius: 6px;
+            transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease, opacity var(--transition-speed) ease;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+        button:active {
+            transform: scale(0.97);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+
+        input[type="search"],
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="url"] {
+            font-family: inherit;
+            border: none;
+            background: none;
+            color: inherit;
+            outline: none;
+            padding: 0.5em;
+            width: 100%;
+            border-radius: 6px;
+        }
+
+        /* --- Theme Variables --- */
+        body.dark-theme {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-interactive: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-primary: #58a6ff;
+            --accent-primary-hover: #79c0ff;
+            --border-color: #30363d;
+            --icon-color: #8b949e;
+            --icon-hover-color: #c9d1d9;
+            --button-text: #ffffff;
+            --error-text: #f44336;
+            --success-text: #4caf50;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --overlay-bg: rgba(0, 0, 0, 0.75);
+        }
+
+        body.light-theme {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f6f8fa;
+            --bg-tertiary: #ffffff;
+            --bg-interactive: #eaeef2;
+            --text-primary: #24292f;
+            --text-secondary: #57606a;
+            --accent-primary: #0969da;
+            --accent-primary-hover: #2c80dc;
+            --border-color: #d0d7de;
+            --icon-color: #57606a;
+            --icon-hover-color: #24292f;
+            --button-text: #ffffff;
+            --error-text: #d32f2f;
+            --success-text: #388e3c;
+            --shadow-color: rgba(100, 100, 100, 0.2);
+             --overlay-bg: rgba(50, 50, 50, 0.6);
+        }
+
+        /* Apply Theme */
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* --- Main Application Wrapper --- */
+        #app-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header --- */
+        .app-header {
+            background-color: var(--bg-secondary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo i {
+            color: var(--accent-primary);
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-interactive);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            min-width: 250px;
+            border: 1px solid var(--border-color);
+        }
+        .search-icon {
+            color: var(--text-secondary);
+            margin-right: 0.5rem;
+        }
+        #search-passwords {
+            font-size: 0.9rem;
+            background-color: transparent;
+        }
+        #search-passwords::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .icon-btn {
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            color: var(--icon-color);
+            background-color: transparent;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .icon-btn:hover {
+            background-color: var(--bg-interactive);
+            color: var(--icon-hover-color);
+            opacity: 1;
+        }
+
+
+        /* --- Main Content --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .accounts-container {
+            background-color: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 750px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: var(--button-text);
+        }
+        .btn-primary:hover {
+            background-color: var(--accent-primary-hover);
+            opacity: 1;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-interactive);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+            opacity: 1;
+        }
+
+        .btn-add-account {
+            width: 100%;
+        }
+
+        /* --- Account List --- */
+        .account-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .account-item {
+            background-color: var(--bg-tertiary);
+            padding: 0.8rem 1.2rem;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed) ease;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+        }
+
+        .account-item:hover {
+            background-color: var(--bg-interactive);
+        }
+
+        .account-name {
+            font-size: 1rem;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+        .account-name > span:first-child {
+             display: block;
+        }
+
+
+        .password-placeholder {
+            color: var(--text-secondary);
+            margin-left: 0;
+            font-weight: 400;
+            letter-spacing: 1px;
+            display: inline-block;
+            font-size: 0.9em;
+            margin-top: 0.2rem;
+        }
+        .account-username-display {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-left: 0;
+            font-weight: 400;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            margin-left: auto;
+            align-items: center;
+        }
+
+        .account-actions .icon-btn {
+            width: 35px;
+            height: 35px;
+            font-size: 0.9rem;
+        }
+
+        /* --- Footer --- */
+        .app-footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background-color: var(--bg-primary);
+            flex-shrink: 0;
+        }
+
+
+         /* --- Overlays and Modals --- */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--overlay-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px var(--shadow-color);
+            max-width: 450px;
+            width: 90%;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .overlay.visible .modal-content {
+            transform: scale(1);
+        }
+
+        .login-modal h2,
+        .account-form-modal h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .login-modal h2 i {
+            color: var(--accent-primary);
+            margin-right: 0.5rem;
+        }
+
+        /* --- Form Styles --- */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group input[type="url"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-interactive);
+            color: var(--text-primary);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .form-group input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-primary-hover);
+        }
+
+        .password-input-group {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .password-input-group input {
+            padding-right: 45px;
+        }
+
+        .toggle-password-vis {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0.4rem;
+            font-size: 1rem;
+            color: var(--icon-color);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .toggle-password-vis:hover {
+            color: var(--icon-hover-color);
+            background-color: var(--bg-secondary);
+        }
+
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .error-message {
+            color: var(--error-text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 1rem;
+            min-height: 1.2em;
+        }
+        .small-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        /* --- Specific Login Modal Styles --- */
+        #login-overlay .login-modal {
+            max-width: 400px;
+            text-align: center;
+        }
+        #login-overlay .login-modal h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        #login-overlay .login-modal .form-group {
+            text-align: left;
+            margin-bottom: 1.2rem;
+        }
+        #login-overlay .login-modal input[type="email"],
+        #login-overlay .login-modal input[type="password"] {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 0.8rem;
+        }
+        #login-overlay .login-modal button[type="submit"] {
+            width: 100%;
+            padding: 0.9rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+            background-color: var(--accent-primary);
+            color: var(--button-text);
+            border: none;
+        }
+        #login-overlay .login-modal button[type="submit"]:hover {
+            background-color: var(--accent-primary-hover);
+            opacity: 1;
+        }
+        #login-overlay .login-modal .error-message {
+            margin-top: 1rem;
+            margin-bottom: 0;
+        }
+        #login-overlay .login-modal .small-text {
+            margin-top: 1.5rem;
+        }
+
+        /* --- Dropdowns --- */
+        .dropdown-container {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            padding: 0.75rem;
+            min-width: 200px;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+        }
+
+        .dropdown-menu.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        /* User Profile Dropdown */
+        .user-dropdown .dropdown-item {
+            display: block;
+            padding: 0.6rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+        .user-dropdown .dropdown-item i {
+            margin-right: 0.75rem;
+            width: 16px;
+            text-align: center;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+        .user-dropdown .dropdown-item:hover {
+            background-color: var(--bg-interactive);
+            color: var(--accent-primary);
+        }
+        .user-dropdown .dropdown-item:hover i {
+            color: var(--accent-primary);
+        }
+
+
+        /* Password Generator Dropdown */
+        .generator-dropdown {
+            min-width: 300px;
+            padding: 1rem;
+        }
+        .generator-dropdown h4 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        .generator-dropdown .form-group {
+            margin-bottom: 0.8rem;
+        }
+        .generator-dropdown label {
+            font-size: 0.85rem;
+        }
+        .generator-dropdown input[type="range"] {
+            width: calc(100% - 50px);
+            vertical-align: middle;
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+            margin-left: 5px;
+        }
+
+        .generator-dropdown #pw-length-value {
+            display: inline-block;
+            min-width: 25px;
+            text-align: right;
+            font-weight: 500;
+            color: var(--text-primary);
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+        .generator-dropdown .form-group.range-group label {
+            display: inline;
+            margin-right: 5px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .checkbox-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .checkbox-group input[type="checkbox"] {
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+
+        .generated-password-display {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.2rem 0.2rem 0.2rem 0.8rem;
+        }
+        #generated-password-output {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            color: var(--text-primary);
+            padding: 0.5rem 0;
+            outline: none;
+        }
+
+        .small-icon-btn {
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+        #generate-now-btn {
+            width: 100%;
+        }
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* Animated Gradient for Star */
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animated-gradient {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient-animation 2s ease infinite;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: inherit;
+        }
+        #password-generator-btn {
+            background-color: transparent !important;
+        }
+        #password-generator-btn:hover .animated-gradient {
+           opacity: 0.85;
+        }
+
+
+        /* Account Item View/Copy Update */
+        .account-item .btn-view i.fa-key,
+        .account-item .btn-view i.fa-eye-slash {
+            color: var(--accent-primary);
+        }
+        .account-item .btn-copy i.fa-check {
+            color: var(--success-text);
+        }
+         .account-item .btn-delete i {
+             color: var(--error-text);
+         }
+
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .header-nav {
+                width: 100%;
+                justify-content: space-around;
+                gap: 0.5rem;
+            }
+            .search-container {
+                min-width: 0;
+                flex-grow: 1;
+            }
+            .logo {
+                font-size: 1.2rem;
+            }
+            .main-content {
+                padding: 1rem;
+            }
+            .accounts-container {
+                padding: 1rem;
+            }
+            .account-item {
+                 padding: 0.7rem 1rem;
+            }
+             .account-name {
+                 flex-basis: 100%;
+                 margin-right: 0;
+             }
+             .account-actions {
+                 margin-left: 0;
+                 flex-basis: 100%;
+                 justify-content: flex-end;
+             }
+        }
+
+        @media (max-width: 480px) {
+            .header-nav {
+                gap: 0.2rem;
+                 flex-wrap: wrap;
+                 justify-content: center;
+            }
+             .search-container {
+                 order: 3;
+                 width: 100%;
+                 margin-top: 0.5rem;
+             }
+             .dropdown-menu {
+                 min-width: calc(100vw - 2rem);
+                 max-width: calc(100vw - 2rem);
+                 right: auto;
+                 left: 50%;
+                 transform: translateX(-50%) translateY(-10px);
+             }
+              .dropdown-menu.visible {
+                 transform: translateX(-50%) translateY(0);
+             }
+
+            .icon-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+            }
+            .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.8rem;
+            }
+            .modal-content {
+                padding: 1.5rem;
+            }
+             .checkbox-group {
+                grid-template-columns: 1fr;
+             }
+            .account-actions {
+                 gap: 0.3rem;
+            }
+             .account-actions .icon-btn {
+                 width: 32px;
+                 height: 32px;
+                 font-size: 0.8rem;
+             }
+        }
+
+         /* Placeholder style */
+         #empty-list-placeholder {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem 1rem;
+            font-style: italic;
+         }
+
+    </style>
+    <!-- Internal CSS End -->
+
+</head>
+<body class="dark-theme"> <!-- Start with dark theme -->
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="overlay visible"> <!-- Start visible -->
+        <div class="modal-content login-modal">
+            <h2><i class="fas fa-lock"></i> Stealth Pass Login</h2>
+            <p id="login-error" class="error-message"></p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" required value="test@test.com"> <!-- Pre-fill for demo -->
+                </div>
+                <div class="form-group">
+                    <label for="login-master-password">Master Password:</label>
+                    <input type="password" id="login-master-password" required value="password"> <!-- Pre-fill for demo -->
+                </div>
+                <button type="submit" class="btn btn-primary">Unlock Vault</button>
+                 <p class="small-text">Demo: Use pre-filled credentials</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application Wrapper (Hidden initially by default style) -->
+    <div id="app-wrapper" style="display: none;">
+        <header class="app-header">
+            <div class="logo">
+                <i class="fas fa-lock"></i> Stealth Pass.
+            </div>
+            <nav class="header-nav">
+                <!-- Password Generator -->
+                <div class="dropdown-container">
+                    <button id="password-generator-btn" class="icon-btn" aria-label="Generate Password">
+                        <i class="fas fa-star animated-gradient"></i>
+                    </button>
+                    <div id="password-generator-dropdown" class="dropdown-menu generator-dropdown">
+                        <h4>Password Generator</h4>
+                        <div class="form-group range-group">
+                            <label for="pw-length">Length:<span id="pw-length-value">16</span></label>
+                            <input type="range" id="pw-length" min="8" max="64" value="16">
+                        </div>
+                         <div class="form-group checkbox-group">
+                            <label><input type="checkbox" id="pw-uppercase" checked> Uppercase (ABC)</label>
+                            <label><input type="checkbox" id="pw-lowercase" checked> Lowercase (abc)</label>
+                            <label><input type="checkbox" id="pw-numbers" checked> Numbers (123)</label>
+                            <label><input type="checkbox" id="pw-symbols" checked> Symbols (#$&)</label>
+                        </div>
+                        <div class="generated-password-display">
+                            <input type="text" id="generated-password-output" readonly placeholder="Click Generate...">
+                            <button id="copy-generated-pw-btn" class="icon-btn small-icon-btn" aria-label="Copy Generated Password"><i class="far fa-copy"></i></button>
+                        </div>
+                        <button id="generate-now-btn" class="btn btn-secondary btn-small">Generate</button>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="search" id="search-passwords" placeholder="Search Passwords">
+                </div>
+
+                 <!-- Theme Toggle -->
+                 <button id="theme-toggle-btn" class="icon-btn" aria-label="Toggle Theme">
+                    <i class="fas fa-sun"></i>
+                </button>
+
+                <!-- User Profile -->
+                <div class="dropdown-container">
+                    <button id="user-profile-btn" class="icon-btn" aria-label="User Profile">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div id="user-profile-dropdown" class="dropdown-menu user-dropdown">
+                        <a href="#" class="dropdown-item" onclick="alert('Settings not implemented yet!'); return false;"><i class="fas fa-cog"></i> Settings</a>
+                        <a href="#" id="logout-btn" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="accounts-container">
+                <button class="btn btn-primary btn-add-account" id="add-account-btn-modal">
+                    <i class="fas fa-plus"></i> ADD NEW ACCOUNT
+                </button>
+
+                <ul class="account-list" id="account-list">
+                    <!-- Placeholder is managed by JS -->
+                    <li id="empty-list-placeholder" style="display: none;">Your vault is empty. Add an account!</li>
+                </ul>
+
+            </div>
+        </main>
+
+        <footer class="app-footer">
+             <p class="animated-gradient">Developed by Abedin Shanto <i class="fas fa-star-of-life animated-gradient" style="font-size: 0.7em; vertical-align: middle; margin-left: 3px;"></i></p>
+        </footer>
+    </div> <!-- End #app-wrapper -->
+
+    <!-- Add/Edit Account Modal -->
+    <div id="account-modal" class="overlay">
+        <div class="modal-content account-form-modal">
+            <h2 id="account-modal-title">Add New Account</h2>
+            <form id="account-form">
+                <input type="hidden" id="account-id"> <!-- For editing -->
+                <div class="form-group">
+                    <label for="account-name-input">Account Name:</label> <!-- Label refers to input ID -->
+                    <input type="text" id="account-name-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="account-username">Username/Email:</label>
+                    <input type="text" id="account-username">
+                </div>
+                <div class="form-group">
+                    <label for="account-password">Password:</label>
+                    <div class="password-input-group">
+                        <input type="password" id="account-password" required>
+                        <button type="button" class="icon-btn toggle-password-vis" aria-label="Show Password"><i class="far fa-eye"></i></button>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label for="account-website">Website (Optional):</label>
+                    <input type="url" id="account-website" placeholder="https://example.com">
+                </div>
+                <div class="modal-actions">
+                     <button type="button" id="cancel-account-btn" class="btn btn-secondary">Cancel</button>
+                     <button type="submit" id="save-account-btn" class="btn btn-primary">Save Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Internal JavaScript Start -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM fully loaded and parsed.");
+
+            // --- DOM Elements ---
+            const loginOverlay = document.getElementById('login-overlay');
+            const loginForm = document.getElementById('login-form');
+            const loginEmailInput = document.getElementById('login-email');
+            const loginPasswordInput = document.getElementById('login-master-password');
+            const loginError = document.getElementById('login-error');
+            const appWrapper = document.getElementById('app-wrapper');
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const passwordGeneratorBtn = document.getElementById('password-generator-btn');
+            const passwordGeneratorDropdown = document.getElementById('password-generator-dropdown');
+            const userProfileBtn = document.getElementById('user-profile-btn');
+            const userProfileDropdown = document.getElementById('user-profile-dropdown');
+            const logoutBtn = document.getElementById('logout-btn');
+            const addAccountModalBtn = document.getElementById('add-account-btn-modal');
+            const accountModal = document.getElementById('account-modal');
+            const accountForm = document.getElementById('account-form');
+            const accountModalTitle = document.getElementById('account-modal-title');
+            const cancelAccountBtn = document.getElementById('cancel-account-btn');
+            const saveAccountBtn = document.getElementById('save-account-btn');
+            const accountIdInput = document.getElementById('account-id');
+            const accountNameInput = document.getElementById('account-name-input');
+            const accountUsernameInput = document.getElementById('account-username');
+            const accountPasswordInput = document.getElementById('account-password');
+            const accountWebsiteInput = document.getElementById('account-website');
+            const togglePasswordBtn = document.querySelector('#account-form .toggle-password-vis');
+            const accountList = document.getElementById('account-list');
+            const searchInput = document.getElementById('search-passwords');
+            const emptyListPlaceholder = document.getElementById('empty-list-placeholder');
+            const pwLengthSlider = document.getElementById('pw-length');
+            const pwLengthValue = document.getElementById('pw-length-value');
+            const pwUppercase = document.getElementById('pw-uppercase');
+            const pwLowercase = document.getElementById('pw-lowercase');
+            const pwNumbers = document.getElementById('pw-numbers');
+            const pwSymbols = document.getElementById('pw-symbols');
+            const generatedPasswordOutput = document.getElementById('generated-password-output');
+            const copyGeneratedPwBtn = document.getElementById('copy-generated-pw-btn');
+            const generateNowBtn = document.getElementById('generate-now-btn');
+
+            const body = document.body;
+            let accounts = [];
+
+            // --- Constants ---
+            const LOCAL_STORAGE_KEY = 'stealthPassAccounts_demo_v3';
+            const SESSION_STORAGE_LOGIN_KEY = 'isLoggedIn_demo_v3';
+
+            // --- Element Sanity Check ---
+            if (!loginOverlay || !loginForm || !appWrapper || !logoutBtn || !accountList) {
+                console.error("CRITICAL ERROR: One or more essential HTML elements not found!");
+                alert("Initialization Error: Could not find essential page elements. Check console (F12).");
+                return;
+            }
+            console.log("Essential elements verified.");
+
+            // --- Helper Functions ---
+            function applyTheme() {
+                const savedTheme = localStorage.getItem('theme') || 'dark-theme';
+                body.className = '';
+                body.classList.add(savedTheme);
+                updateThemeIcon(savedTheme);
+                console.log("Theme applied:", savedTheme);
+            }
+
+            function updateThemeIcon(theme) {
+                if (!themeToggleBtn) return;
+                const icon = themeToggleBtn.querySelector('i');
+                if (icon) {
+                     icon.className = theme === 'light-theme' ? 'fas fa-moon' : 'fas fa-sun';
+                } else {
+                    console.warn("Theme toggle icon not found");
+                }
+            }
+
+             function loadAccounts() {
+                console.log("Loading accounts from localStorage...");
+                const storedAccounts = localStorage.getItem(LOCAL_STORAGE_KEY);
+                try {
+                     accounts = storedAccounts ? JSON.parse(storedAccounts) : [];
+                     if (!Array.isArray(accounts)) accounts = [];
+                     console.log(`Loaded ${accounts.length} accounts.`);
+                } catch (e) {
+                    console.error("Error parsing accounts from localStorage:", e);
+                    accounts = [];
+                }
+                renderAccountList();
+            }
+
+             function saveAccounts() {
+                 console.log("Saving accounts to localStorage...");
+                try {
+                    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(accounts));
+                    console.log("Accounts saved successfully.");
+                } catch (e) {
+                    console.error("Error saving accounts to localStorage:", e);
+                    alert("Could not save accounts. LocalStorage might be full or disabled.");
+                }
+            }
+
+            function renderAccountList() {
+                console.log("Rendering account list...");
+                if (!accountList) {
+                    console.error("Account list element not found!");
+                    return;
+                }
+                accountList.innerHTML = ''; // Clear list first
+                const hasAccounts = accounts && accounts.length > 0;
+
+                 // Manage placeholder
+                 if (!hasAccounts && emptyListPlaceholder) {
+                     emptyListPlaceholder.textContent = "Your vault is empty. Add an account!";
+                     emptyListPlaceholder.style.display = 'block';
+                     accountList.appendChild(emptyListPlaceholder); // Make sure it's added if list was empty
+                 } else if (hasAccounts && emptyListPlaceholder) {
+                     emptyListPlaceholder.style.display = 'none'; // Hide if there are accounts
+                     // It might have been appended previously, remove if it's still there but shouldn't be visible
+                     if (accountList.contains(emptyListPlaceholder)) {
+                         accountList.removeChild(emptyListPlaceholder);
+                     }
+                 }
+
+
+                if (hasAccounts) {
+                    accounts.forEach(account => {
+                        try {
+                            const item = createAccountItemElement(account);
+                            accountList.appendChild(item);
+                        } catch (error) {
+                            console.error(`Error creating list item for account ${account?.id}:`, error);
+                        }
+                    });
+                }
+                console.log("Account list rendering complete.");
+                filterAccounts(); // Apply search filter AFTER rendering accounts (or placeholder)
+            }
+
+
+            function createAccountItemElement(account) {
+                const li = document.createElement('li');
+                li.className = 'account-item';
+                li.dataset.id = String(account.id);
+
+                // **INSECURE DEMO STORAGE**
+                li.dataset.password = account.password;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'account-name';
+
+                const nameText = document.createElement('span');
+                nameText.textContent = escapeHtml(account.name);
+                nameSpan.appendChild(nameText);
+
+                if (account.username) {
+                    const usernameDisplay = document.createElement('span');
+                    usernameDisplay.className = 'account-username-display';
+                    usernameDisplay.textContent = `(${escapeHtml(account.username)})`;
+                    nameSpan.appendChild(usernameDisplay);
+                }
+
+                const placeholder = document.createElement('span');
+                placeholder.className = 'password-placeholder';
+                placeholder.textContent = '************';
+                nameSpan.appendChild(placeholder);
+
+                li.appendChild(nameSpan);
+
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'account-actions';
+                actionsDiv.innerHTML = `
+                    <button class="icon-btn btn-copy" aria-label="Copy Password">
+                        <i class="far fa-copy"></i>
+                    </button>
+                    <button class="icon-btn btn-view" aria-label="View Password">
+                        <i class="fas fa-key"></i>
+                    </button>
+                     <button class="icon-btn btn-edit" aria-label="Edit Account">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                     <button class="icon-btn btn-delete" aria-label="Delete Account">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+                li.appendChild(actionsDiv);
+
+                return li;
+            }
+
+            function escapeHtml(unsafe) {
+                if (typeof unsafe !== 'string') return '';
+                return unsafe
+                     .replace(/&/g, "&")
+                     .replace(/</g, "<")
+                     .replace(/>/g, ">")
+
+                     .replace(/'/g, "'")
+             }
+
+            function openAccountModal(accountToEdit = null) {
+                if (!accountModal || !accountForm || !togglePasswordBtn || !accountPasswordInput || !accountNameInput || !accountIdInput || !accountUsernameInput || !accountWebsiteInput || !accountModalTitle) return;
+                accountForm.reset();
+                togglePasswordBtn.querySelector('i').className = 'far fa-eye';
+                accountPasswordInput.type = 'password';
+                if(loginError) loginError.textContent = '';
+
+                if (accountToEdit) {
+                    accountModalTitle.textContent = 'Edit Account';
+                    accountIdInput.value = accountToEdit.id;
+                    accountNameInput.value = accountToEdit.name;
+                    accountUsernameInput.value = accountToEdit.username || '';
+                    accountPasswordInput.value = accountToEdit.password; // **INSECURE**
+                    accountWebsiteInput.value = accountToEdit.website || '';
+                } else {
+                    accountModalTitle.textContent = 'Add New Account';
+                    accountIdInput.value = '';
+                }
+                accountModal.classList.add('visible');
+                accountNameInput.focus();
+            }
+
+            function closeAccountModal() {
+                if(accountModal) accountModal.classList.remove('visible');
+            }
+
+            function handleCopyPassword(button, password) {
+                if (!button) return;
+                if (!password) {
+                    showFeedback(button, 'fa-exclamation-circle', 'var(--error-text)');
+                    return;
+                }
+                navigator.clipboard.writeText(password)
+                    .then(() => {
+                        showFeedback(button, 'fas fa-check', 'var(--success-text)');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        showFeedback(button, 'fa-exclamation-circle', 'var(--error-text)');
+                    });
+            }
+
+             function handleViewPassword(button, item, password) {
+                 if(!button || !item) return;
+                const placeholderSpan = item.querySelector('.password-placeholder');
+                const icon = button.querySelector('i');
+                if (!placeholderSpan || !icon) return;
+
+                if (icon.classList.contains('fa-key')) {
+                    placeholderSpan.textContent = escapeHtml(password);
+                    placeholderSpan.style.fontWeight = '500';
+                    placeholderSpan.style.color = 'var(--text-primary)';
+                    icon.className = 'fas fa-eye-slash';
+                    button.setAttribute('aria-label', 'Hide Password');
+                } else {
+                    placeholderSpan.textContent = '************';
+                    placeholderSpan.style.fontWeight = '400';
+                    placeholderSpan.style.color = 'var(--text-secondary)';
+                    icon.className = 'fas fa-key';
+                    button.setAttribute('aria-label', 'View Password');
+                }
+            }
+
+             function filterAccounts() {
+                 if (!searchInput || !accountList || !emptyListPlaceholder) return;
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const items = accountList.querySelectorAll('.account-item'); // Select only actual account items
+                let visibleCount = 0;
+
+                items.forEach(item => {
+                    const nameElement = item.querySelector('.account-name > span:first-child');
+                    const usernameElement = item.querySelector('.account-username-display');
+                    const namePart = nameElement ? nameElement.textContent.trim().toLowerCase() : '';
+                    const usernamePart = usernameElement ? usernameElement.textContent.replace(/[()]/g, '').trim().toLowerCase() : '';
+
+                    if (namePart.includes(searchTerm) || usernamePart.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Manage placeholder visibility and text
+                const hasAccounts = accounts && accounts.length > 0;
+                if (hasAccounts) {
+                     emptyListPlaceholder.style.display = (visibleCount === 0) ? 'block' : 'none';
+                    if (visibleCount === 0) {
+                        emptyListPlaceholder.textContent = "No accounts match your search.";
+                         // Ensure placeholder is in DOM if needed
+                         if (!accountList.contains(emptyListPlaceholder)) accountList.appendChild(emptyListPlaceholder);
+                    } else {
+                         // Remove placeholder if items are visible and it's currently in DOM
+                         if (accountList.contains(emptyListPlaceholder)) accountList.removeChild(emptyListPlaceholder);
+                    }
+                } else {
+                    emptyListPlaceholder.style.display = 'block';
+                    emptyListPlaceholder.textContent = "Your vault is empty. Add an account!";
+                     // Ensure placeholder is in DOM if vault is truly empty
+                     if (!accountList.contains(emptyListPlaceholder)) accountList.appendChild(emptyListPlaceholder);
+                }
+            }
+
+
+            function generatePassword(length, upper, lower, numbers, symbols) {
+                const upperChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                const lowerChars = 'abcdefghijklmnopqrstuvwxyz';
+                const numberChars = '0123456789';
+                const symbolChars = '!@#$%^&*()_+~`|}{[]:;?><,./-=';
+                let charset = '';
+                let generated = '';
+                let guaranteedChars = '';
+
+                if (upper) { charset += upperChars; if (upperChars.length > 0) guaranteedChars += upperChars[Math.floor(Math.random() * upperChars.length)]; }
+                if (lower) { charset += lowerChars; if (lowerChars.length > 0) guaranteedChars += lowerChars[Math.floor(Math.random() * lowerChars.length)]; }
+                if (numbers) { charset += numberChars; if (numberChars.length > 0) guaranteedChars += numberChars[Math.floor(Math.random() * numberChars.length)]; }
+                if (symbols) { charset += symbolChars; if (symbolChars.length > 0) guaranteedChars += symbolChars[Math.floor(Math.random() * symbolChars.length)]; }
+
+
+                if (charset === '') {
+                    alert("Please select at least one character type!");
+                    return '';
+                }
+                const remainingLength = Math.max(0, length - guaranteedChars.length);
+                for (let i = 0; i < remainingLength; i++) {
+                     if (charset.length === 0) break; // Avoid infinite loop if somehow charset becomes empty
+                    generated += charset.charAt(Math.floor(Math.random() * charset.length));
+                }
+                generated = (generated + guaranteedChars).split('').sort(() => 0.5 - Math.random()).join('');
+                return generated.slice(0, length); // Ensure length is exact
+            }
+
+            function setupDropdown(button, dropdown) {
+                if (!button || !dropdown) return;
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closeAllDropdowns(dropdown);
+                    dropdown.classList.toggle('visible');
+                });
+            }
+
+            function closeAllDropdowns(excludeDropdown = null) {
+                document.querySelectorAll('.dropdown-menu.visible').forEach(menu => {
+                    if (menu !== excludeDropdown) {
+                        menu.classList.remove('visible');
+                    }
+                });
+            }
+
+            function showFeedback(buttonElement, iconClass, color = 'var(--success-text)', duration = 1500) {
+                if (!buttonElement) return;
+                 const icon = buttonElement.querySelector('i');
+                 if (!icon) return;
+                 const originalIcon = icon.className;
+                 const originalColor = buttonElement.style.color;
+                 icon.className = iconClass;
+                 buttonElement.style.color = color;
+                 setTimeout(() => {
+                     if(document.body.contains(buttonElement)) {
+                        const currentIcon = buttonElement.querySelector('i');
+                        if(currentIcon) {
+                           currentIcon.className = originalIcon;
+                           buttonElement.style.color = originalColor;
+                        }
+                     }
+                 }, duration);
+            }
+
+
+            // --- Event Handlers ---
+            function handleLoginSubmit(e) {
+                e.preventDefault();
+                console.log("Login form submitted.");
+                if (!loginError || !loginEmailInput || !loginPasswordInput) return;
+                loginError.textContent = '';
+                const email = loginEmailInput.value;
+                const password = loginPasswordInput.value;
+
+                // **DEMO LOGIN CHECK**
+                if (email === 'test@test.com' && password === 'password') {
+                    console.log("Login credentials CORRECT.");
+                    try {
+                        sessionStorage.setItem(SESSION_STORAGE_LOGIN_KEY, 'true');
+                        console.log("Session storage 'isLoggedIn' set to true.");
+                        initializeAppUI();
+                    } catch (error) {
+                        console.error("Error setting session storage or initializing app:", error);
+                        loginError.textContent = 'Login failed due to an internal error.';
+                    }
+                } else {
+                    console.log("Login credentials INCORRECT.");
+                    loginError.textContent = 'Invalid email or master password.';
+                    loginPasswordInput.focus();
+                }
+            }
+
+            function handleLogout(e) {
+                e.preventDefault();
+                if (confirm("Are you sure you want to logout?")) {
+                     console.log("Logout initiated.");
+                    sessionStorage.removeItem(SESSION_STORAGE_LOGIN_KEY);
+                    window.location.reload();
+                 }
+            }
+
+            function handleThemeToggle() {
+                if (!body || !localStorage) return;
+                body.classList.toggle('light-theme');
+                body.classList.toggle('dark-theme');
+                let newTheme = body.classList.contains('light-theme') ? 'light-theme' : 'dark-theme';
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            }
+
+            // *** CORRECTED handleAccountListActions ***
+            function handleAccountListActions(event) {
+                if (!event || !event.target || !accounts) return;
+                const target = event.target;
+                const button = target.closest('.icon-btn'); // Find the button clicked
+                const item = target.closest('.account-item'); // Find the list item container
+
+                if (!button || !item) return; // Exit if not a button inside an item
+
+                const accountId = parseInt(item.dataset.id, 10); // Specify base 10
+                if (isNaN(accountId)) {
+                    console.error("Invalid account ID found in dataset:", item.dataset.id);
+                    return; // Exit if ID is not a number
+                }
+
+                const account = accounts.find(acc => acc.id === accountId);
+                // Safety check if account wasn't found in the array for some reason
+                if (!account) {
+                    console.error("Account not found in accounts array for ID:", accountId);
+                    return;
+                }
+
+                // **INSECURE DEMO STORAGE** - Get password from data attribute
+                const storedPassword = item.dataset.password;
+
+                // Handle different button actions
+                if (button.classList.contains('btn-copy')) {
+                    handleCopyPassword(button, storedPassword);
+                }
+                else if (button.classList.contains('btn-view')) {
+                    handleViewPassword(button, item, storedPassword);
+                }
+                else if (button.classList.contains('btn-edit')) {
+                    openAccountModal(account);
+                }
+                else if (button.classList.contains('btn-delete')) {
+                    // Use requestAnimationFrame for smoother UI update before confirm dialog blocks thread
+                    requestAnimationFrame(() => {
+                        // **VERIFIED CONFIRM LINE:** Backticks and quotes are correctly balanced here.
+                        if (confirm(`Are you sure you want to delete the account "${escapeHtml(account.name)}"? This cannot be undone.`)) {
+                            accounts = accounts.filter(acc => acc.id !== accountId);
+                            saveAccounts();
+                            renderAccountList(); // Re-render immediately after deleting
+                        }
+                    });
+                }
+            }
+            // *** END CORRECTED handleAccountListActions ***
+
+
+            function handleAccountFormSubmit(e) {
+                e.preventDefault();
+                if (!accountIdInput || !accountNameInput || !accountPasswordInput || !accountUsernameInput || !accountWebsiteInput || !accounts) return;
+
+                const accountData = {
+                    id: accountIdInput.value ? parseInt(accountIdInput.value, 10) : Date.now(),
+                    name: accountNameInput.value.trim(),
+                    username: accountUsernameInput.value.trim(),
+                    password: accountPasswordInput.value, // **INSECURE**
+                    website: accountWebsiteInput.value.trim()
+                };
+
+                if (isNaN(accountData.id)) accountData.id = Date.now();
+
+                if (!accountData.name || !accountData.password) {
+                    alert("Account Name and Password are required.");
+                    return;
+                }
+
+                const existingIndex = accounts.findIndex(acc => acc.id === accountData.id);
+
+                if (existingIndex > -1) { // Update
+                    accounts[existingIndex] = accountData;
+                } else { // Add new
+                    accounts.unshift(accountData); // Add to beginning
+                }
+
+                saveAccounts();
+                renderAccountList();
+                closeAccountModal();
+            }
+
+            function handleTogglePasswordVisibility() {
+                 if(!togglePasswordBtn || !accountPasswordInput) return;
+                const icon = togglePasswordBtn.querySelector('i');
+                 if(!icon) return;
+                if (accountPasswordInput.type === 'password') {
+                    accountPasswordInput.type = 'text';
+                    icon.className = 'far fa-eye-slash';
+                    togglePasswordBtn.setAttribute('aria-label', 'Hide Password');
+                } else {
+                    accountPasswordInput.type = 'password';
+                    icon.className = 'far fa-eye';
+                     togglePasswordBtn.setAttribute('aria-label', 'Show Password');
+                }
+            }
+
+             function handleGeneratePassword() {
+                if (!pwLengthSlider || !pwUppercase || !pwLowercase || !pwNumbers || !pwSymbols || !generatedPasswordOutput) return;
+                const length = parseInt(pwLengthSlider.value, 10);
+                const useUpper = pwUppercase.checked;
+                const useLower = pwLowercase.checked;
+                const useNumbers = pwNumbers.checked;
+                const useSymbols = pwSymbols.checked;
+                const newPassword = generatePassword(length, useUpper, useLower, useNumbers, useSymbols);
+                if(newPassword) {
+                    generatedPasswordOutput.value = newPassword;
+                    generatedPasswordOutput.focus();
+                    generatedPasswordOutput.select();
+                }
+             }
+
+             function handleCopyGeneratedPassword() {
+                if(!generatedPasswordOutput || !copyGeneratedPwBtn) return;
+                const password = generatedPasswordOutput.value;
+                if (!password) {
+                     showFeedback(copyGeneratedPwBtn, 'fa-exclamation-circle', 'var(--error-text)');
+                    return;
+                }
+                navigator.clipboard.writeText(password)
+                    .then(() => {
+                         showFeedback(copyGeneratedPwBtn, 'fas fa-check', 'var(--success-text)');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy generated password: ', err);
+                        showFeedback(copyGeneratedPwBtn, 'fa-exclamation-circle', 'var(--error-text)');
+                    });
+             }
+
+             function handleOutsideClicks(e) {
+                 if(!e.target) return;
+                // Close dropdowns
+                if (!e.target.closest('.dropdown-container')) {
+                    closeAllDropdowns();
+                }
+                // Close account modal
+                if (accountModal && accountModal.classList.contains('visible') && e.target === accountModal) {
+                    closeAccountModal();
+                }
+             }
+
+            // --- Initialization Function ---
+            function initializeAppUI() {
+                console.log("initializeAppUI called.");
+
+                // Change UI visibility
+                try {
+                    if(loginOverlay) loginOverlay.classList.remove('visible'); else console.warn("Login overlay not found during UI init");
+                    if(appWrapper) appWrapper.style.display = 'flex'; else console.warn("App wrapper not found during UI init");
+                     console.log("Login overlay hidden, app wrapper shown.");
+                } catch (uiError) {
+                     console.error("Error changing UI visibility:", uiError);
+                     alert("Error displaying the application interface.");
+                     return;
+                }
+
+                // Load data and setup listeners AFTER UI is visible
+                try {
+                    applyTheme();
+                    loadAccounts();
+
+                    // Attach listeners (with safety checks)
+                    if (themeToggleBtn) themeToggleBtn.addEventListener('click', handleThemeToggle); else console.warn("Listener Warning: themeToggleBtn not found");
+                    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout); else console.warn("Listener Warning: logoutBtn not found");
+                    if (accountList) accountList.addEventListener('click', handleAccountListActions); else console.warn("Listener Warning: accountList not found");
+                    if (addAccountModalBtn) addAccountModalBtn.addEventListener('click', () => openAccountModal()); else console.warn("Listener Warning: addAccountModalBtn not found");
+                    if (cancelAccountBtn) cancelAccountBtn.addEventListener('click', closeAccountModal); else console.warn("Listener Warning: cancelAccountBtn not found");
+                    if (accountForm) accountForm.addEventListener('submit', handleAccountFormSubmit); else console.warn("Listener Warning: accountForm not found");
+                    if (togglePasswordBtn) togglePasswordBtn.addEventListener('click', handleTogglePasswordVisibility); else console.warn("Listener Warning: togglePasswordBtn not found");
+                    if (searchInput) searchInput.addEventListener('input', filterAccounts); else console.warn("Listener Warning: searchInput not found");
+
+                    // Dropdowns
+                    setupDropdown(passwordGeneratorBtn, passwordGeneratorDropdown);
+                    setupDropdown(userProfileBtn, userProfileDropdown);
+
+                    // Generator specific listeners
+                    if (pwLengthSlider) pwLengthSlider.addEventListener('input', () => { if(pwLengthValue) pwLengthValue.textContent = pwLengthSlider.value; }); else console.warn("Listener Warning: pwLengthSlider not found");
+                    if (generateNowBtn) generateNowBtn.addEventListener('click', handleGeneratePassword); else console.warn("Listener Warning: generateNowBtn not found");
+                    if (copyGeneratedPwBtn) copyGeneratedPwBtn.addEventListener('click', handleCopyGeneratedPassword); else console.warn("Listener Warning: copyGeneratedPwBtn not found");
+
+                    // Global listener
+                    document.addEventListener('click', handleOutsideClicks);
+
+                     console.log("App event listeners attached.");
+                } catch (setupError) {
+                    console.error("Error during app setup (loading data or attaching listeners):", setupError);
+                    alert("An error occurred while setting up the application.");
+                }
+            }
+
+            function showLoginScreen() {
+                console.log("showLoginScreen called.");
+                applyTheme();
+                if(appWrapper) appWrapper.style.display = 'none';
+                if(loginOverlay) loginOverlay.classList.add('visible');
+                if(loginEmailInput) loginEmailInput.focus();
+            }
+
+            // --- Initial Execution ---
+            console.log("Setting up initial state...");
+            if(loginForm) {
+                loginForm.addEventListener('submit', handleLoginSubmit);
+            } else {
+                 console.error("Login form not found! Cannot attach submit listener.");
+                 alert("Critical Error: Login form element missing. App cannot start.");
+                 return;
+            }
+
+            // Check login status safely
+            try {
+                 if (sessionStorage.getItem(SESSION_STORAGE_LOGIN_KEY) === 'true') {
+                     console.log("User already logged in (session found). Initializing app.");
+                    initializeAppUI();
+                } else {
+                     console.log("User not logged in. Showing login screen.");
+                    showLoginScreen();
+                }
+            } catch (sessionError) {
+                 console.error("Error accessing sessionStorage:", sessionError);
+                 console.log("Assuming user not logged in due to error. Showing login screen.");
+                 showLoginScreen();
+            }
+
+            console.log("Initial setup complete.");
+
+        }); // End DOMContentLoaded
+    </script>
+     <!-- Internal JavaScript End -->
+
+</body>
+</html>

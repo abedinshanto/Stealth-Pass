@@ -1009,6 +1009,7 @@
                         <button type="button" id="resend-code-btn" class="btn btn-secondary btn-small">Resend</button>
                     </div>
                 </div>
+                <div id="recaptcha-container" style="display: none;"></div>
                 <button type="submit" class="btn btn-primary btn-block" id="login-submit-btn">Send Code</button>
                 <p class="small-text">We'll send you a verification code via SMS</p>
             </form>
@@ -1193,13 +1194,11 @@
                         window.recaptchaVerifier.clear();
                     }
 
-                    // Create new reCAPTCHA verifier with explicit container
-                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('login-submit-btn', {
+                    // Create new reCAPTCHA verifier using the hidden container
+                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
                         'size': 'invisible',
                         'callback': (response) => {
                             console.log("reCAPTCHA verified");
-                            // Enable the submit button after verification
-                            if (loginSubmitBtn) loginSubmitBtn.disabled = false;
                         },
                         'expired-callback': () => {
                             console.log("reCAPTCHA expired");
@@ -1213,8 +1212,6 @@
                     window.recaptchaVerifier.render().then(function(widgetId) {
                         window.recaptchaWidgetId = widgetId;
                         console.log("reCAPTCHA rendered with widget ID:", widgetId);
-                        // Disable submit button until reCAPTCHA is verified
-                        if (loginSubmitBtn) loginSubmitBtn.disabled = true;
                     }).catch(function(error) {
                         console.error("Error rendering reCAPTCHA:", error);
                         if (loginError) loginError.textContent = 'Error setting up verification. Please refresh the page';

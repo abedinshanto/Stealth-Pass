@@ -1272,19 +1272,8 @@
                         // Reset reCAPTCHA on error
                         setupPhoneAuth();
                         // More specific error messages
-                        switch (error.code) {
-                            case 'auth/invalid-phone-number':
-                                loginError.textContent = 'Invalid phone number format';
-                                break;
-                            case 'auth/too-many-requests':
-                                loginError.textContent = 'Too many attempts. Please try again later';
-                                break;
-                            case 'auth/internal-error':
-                                loginError.textContent = 'Authentication service error. Please try again';
-                                break;
-                            default:
-                                loginError.textContent = error.message || 'An error occurred. Please try again';
-                        }
+                        const errorMessage = handleError(error, 'phone authentication');
+                        loginError.textContent = errorMessage;
                     });
             }
 
@@ -1311,7 +1300,8 @@
                     })
                     .catch((error) => {
                         console.error("Error resending code:", error);
-                        loginError.textContent = error.message;
+                        const errorMessage = handleError(error, 'resending code');
+                        loginError.textContent = errorMessage;
                     });
             }
 
@@ -1334,8 +1324,9 @@
                     })
                     .catch((error) => {
                         console.error("Error verifying code:", error);
-                        if (loginError) loginError.textContent = error.message || 'Verification failed.';
-                        alert('Verification failed: ' + (error.message || 'Unknown error'));
+                        const errorMessage = handleError(error, 'verification');
+                        loginError.textContent = errorMessage;
+                        alert('Verification failed: ' + errorMessage);
                     });
             }
 
@@ -1473,6 +1464,29 @@
             console.log("Initial setup complete.");
 
         }); // End DOMContentLoaded
+
+        // Add more robust error handling
+        function handleError(error, context) {
+            console.error(`Error in ${context}:`, error);
+            // Add user-friendly error messages
+            const errorMessages = {
+                'auth/invalid-phone-number': 'Please enter a valid phone number',
+                'auth/too-many-requests': 'Too many attempts. Please try again later',
+                // Add more specific error messages
+            };
+            return errorMessages[error.code] || 'An unexpected error occurred';
+        }
+
+        // Add input validation
+        function validateAccountInput(account) {
+            const errors = [];
+            if (!account.name) errors.push('Account name is required');
+            if (!account.password) errors.push('Password is required');
+            if (account.website && !isValidUrl(account.website)) {
+                errors.push('Invalid website URL');
+            }
+            return errors;
+        }
     </script>
      <!-- Internal JavaScript End -->
 

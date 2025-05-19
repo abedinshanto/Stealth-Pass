@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stealth Pass - Login</title>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+    <div class="login-container">
+        <div class="login-modal">
+            <div id="toast"></div>
+            <div class="login-header">
+                <h2><i class="fas fa-lock"></i> Stealth Pass</h2>
+                <p class="login-subtitle">Secure Password Management</p>
+            </div>
+            
+            <!-- Verification Message -->
+            <div id="verification-message" class="verification-message" style="display: none;">
+                <i class="fas fa-envelope"></i>
+                <p>Verification email sent!</p>
+                <p>Please check your inbox at <span class="email"></span></p>
+                <p>Click the verification link to activate your account.</p>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password:</label>
+                    <div class="password-input-group">
+                        <input type="password" id="login-password" required placeholder="Enter your password">
+                        <button type="button" class="icon-btn toggle-password-vis" aria-label="Show Password">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+                <p class="small-text">Don't have an account? <a href="#" id="show-signup" class="signup-text">Sign up</a></p>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signup-form" class="auth-form hidden">
+                <div class="form-group">
+                    <label for="signup-name">Username:</label>
+                    <input type="text" id="signup-name" required placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email:</label>
+                    <input type="email" id="signup-email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password:</label>
+                    <div class="password-input-group">
+                        <input type="password" id="signup-password" required placeholder="Create a password">
+                        <button type="button" class="icon-btn toggle-password-vis" aria-label="Show Password">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength-meter" id="password-strength-meter">
+                        <div class="strength-meter-bar" id="strength-meter-bar"></div>
+                    </div>
+                    <div id="password-guidance" class="password-guidance"></div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password:</label>
+                    <div class="password-input-group">
+                        <input type="password" id="confirm-password" required placeholder="Confirm your password">
+                        <button type="button" class="icon-btn toggle-password-vis" aria-label="Show Password">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group checkbox-group single-line-checkbox">
+                    <label class="terms-checkbox">
+                        <input type="checkbox" id="terms-checkbox" required>
+                        <span>I agree to the <a href="#" id="show-terms">Terms of Service</a> and <a href="#" id="show-privacy">Privacy Policy</a></span>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                <p class="small-text">Already have an account? <a href="#" id="show-login" class="signup-text">Login</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <!-- Link to external login.js -->
+    <script src="login.js"></script>
+</body>
+</html> 

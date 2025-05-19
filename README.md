@@ -1,3 +1,3 @@
 # Stealth-Pass
 
-Visit here: https://stealth-pass.vercel.app/
+Visit here: https://stealthpass.vercel.app/

@@ -94,70 +94,113 @@ document.addEventListener('DOMContentLoaded', () => {
         return user ? user.uid : null;
     }
 
+    // --- Local cache helpers for faster initial render ---
+    function getAccountsCacheKey(userId) {
+        return `accounts_cache_${userId}`;
+    }
+
+    function readAccountsCache(userId) {
+        try {
+            const raw = localStorage.getItem(getAccountsCacheKey(userId));
+            return raw ? JSON.parse(raw) : null;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function writeAccountsCache(userId, accountsObj) {
+        try {
+            localStorage.setItem(getAccountsCacheKey(userId), JSON.stringify(accountsObj || {}));
+        } catch (_) {
+            // ignore
+        }
+    }
+
+    // Render accounts list from a plain object map
+    function renderAccounts(accounts) {
+        const accountList = document.getElementById('account-list');
+        const placeholder = document.getElementById('empty-list-placeholder');
+        accountList.innerHTML = '';
+        const keys = Object.keys(accounts || {});
+        if (keys.length === 0) {
+            placeholder.style.display = '';
+            return;
+        }
+        placeholder.style.display = 'none';
+        keys.forEach((id) => {
+            const acc = accounts[id];
+            const li = document.createElement('li');
+            li.className = 'account-item';
+            li.dataset.id = id;
+            li.innerHTML = `
+                <div class="account-info">
+                    <span class="account-user-icon blue-circle"><i class="fas fa-user"></i></span>
+                    <div class="account-type-name">
+                        <span class="account-type">${acc.name || ''}</span>
+                        <span class="account-username-display">${acc.username || ''}</span>
+                    </div>
+                </div>
+                <div class="account-actions">
+                    <div class="copy-dropdown-container" style="position: relative; display: inline-block;">
+                        <button class="icon-btn btn-copy" title="Copy"><i class="far fa-copy"></i></button>
+                        <div class="copy-dropdown-menu" style="display: none; position: absolute; top: 110%; right: 0; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 16px var(--shadow-color); z-index: 100; min-width: 140px;">
+                            <button class="copy-username-btn" style="width: 100%; padding: 0.7em 1em; background: none; border: none; color: var(--text-primary); text-align: left; cursor: pointer;">Copy Username</button>
+                            <button class="copy-password-btn" style="width: 100%; padding: 0.7em 1em; background: none; border: none; color: var(--text-primary); text-align: left; cursor: pointer;">Copy Password</button>
+                        </div>
+                    </div>
+                    <button class="icon-btn btn-edit" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="icon-btn btn-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            accountList.appendChild(li);
+
+            // Dropdown logic for copy button
+            const copyBtn = li.querySelector('.btn-copy');
+            const dropdown = li.querySelector('.copy-dropdown-menu');
+            copyBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+            document.addEventListener('click', (e) => {
+                if (!li.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            li.querySelector('.copy-username-btn').addEventListener('click', () => {
+                navigator.clipboard.writeText(acc.username || '');
+                dropdown.style.display = 'none';
+            });
+            li.querySelector('.copy-password-btn').addEventListener('click', () => {
+                navigator.clipboard.writeText(acc.password || '');
+                dropdown.style.display = 'none';
+            });
+        });
+    }
+
     // Account management
     function loadAccounts() {
         const userId = getCurrentUserId();
         if (!userId) return;
-        const accountList = document.getElementById('account-list');
-        const placeholder = document.getElementById('empty-list-placeholder');
+        // 1) Render cached accounts immediately if present
+        const cached = readAccountsCache(userId);
+        if (cached) {
+            renderAccounts(cached);
+        }
+
+        // 2) Fetch fresh accounts and update cache + UI
         firebase.database().ref('accounts/' + userId).once('value', (snapshot) => {
             const accounts = snapshot.val() || {};
-            accountList.innerHTML = '';
-            const keys = Object.keys(accounts);
-            if (keys.length === 0) {
-                placeholder.style.display = '';
-            } else {
-                placeholder.style.display = 'none';
-                keys.forEach((id) => {
-                    const acc = accounts[id];
-                    const li = document.createElement('li');
-                    li.className = 'account-item';
-                    li.dataset.id = id;
-                    li.innerHTML = `
-                        <div class="account-info">
-                            <span class="account-user-icon blue-circle"><i class="fas fa-user"></i></span>
-                            <div class="account-type-name">
-                                <span class="account-type">${acc.name}</span>
-                                <span class="account-username-display">${acc.username || ''}</span>
-                            </div>
-                        </div>
-                        <div class="account-actions">
-                            <div class="copy-dropdown-container" style="position: relative; display: inline-block;">
-                                <button class="icon-btn btn-copy" title="Copy"><i class="far fa-copy"></i></button>
-                                <div class="copy-dropdown-menu" style="display: none; position: absolute; top: 110%; right: 0; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 16px var(--shadow-color); z-index: 100; min-width: 140px;">
-                                    <button class="copy-username-btn" style="width: 100%; padding: 0.7em 1em; background: none; border: none; color: var(--text-primary); text-align: left; cursor: pointer;">Copy Username</button>
-                                    <button class="copy-password-btn" style="width: 100%; padding: 0.7em 1em; background: none; border: none; color: var(--text-primary); text-align: left; cursor: pointer;">Copy Password</button>
-                                </div>
-                            </div>
-                            <button class="icon-btn btn-edit" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="icon-btn btn-delete" title="Delete"><i class="fas fa-trash"></i></button>
-                        </div>
-                    `;
-                    accountList.appendChild(li);
-
-                    // Add dropdown logic for copy button
-                    const copyBtn = li.querySelector('.btn-copy');
-                    const dropdown = li.querySelector('.copy-dropdown-menu');
-                    copyBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-                    });
-                    document.addEventListener('click', (e) => {
-                        if (!li.contains(e.target)) {
-                            dropdown.style.display = 'none';
-                        }
-                    });
-                    li.querySelector('.copy-username-btn').addEventListener('click', () => {
-                        navigator.clipboard.writeText(acc.username || '');
-                        dropdown.style.display = 'none';
-                    });
-                    li.querySelector('.copy-password-btn').addEventListener('click', () => {
-                        navigator.clipboard.writeText(acc.password || '');
-                        dropdown.style.display = 'none';
-                    });
-                });
-            }
+            writeAccountsCache(userId, accounts);
+            renderAccounts(accounts);
         });
+
+        // Ensure passwords are not auto-revealed by browser autofill race conditions
+        setTimeout(() => {
+            const pwInput = document.getElementById('account-password');
+            if (pwInput && pwInput.type !== 'password') {
+                pwInput.type = 'password';
+            }
+        }, 0);
     }
 
     function saveAccount(account) {
@@ -219,6 +262,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (id) {
             document.getElementById('account-modal-title').textContent = 'Edit Account';
             const userId = getCurrentUserId();
+            // Prefill from cache instantly if available
+            const cached = readAccountsCache(userId);
+            if (cached && cached[id]) {
+                const acc = cached[id];
+                document.getElementById('account-id').value = id;
+                document.getElementById('account-name-input').value = acc.name || '';
+                document.getElementById('account-username').value = acc.username || '';
+                document.getElementById('account-password').value = acc.password || '';
+                document.getElementById('account-website').value = acc.website || '';
+            }
             firebase.database().ref('accounts/' + userId + '/' + id).once('value', (snap) => {
                 const acc = snap.val();
                 document.getElementById('account-id').value = id;

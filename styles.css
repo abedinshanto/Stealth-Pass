@@ -557,12 +557,12 @@ body.light-theme .modal-content {
 }
 
 .password-input-group input {
-    padding-right: 90px;
+    padding-right: 45px;
 }
 
 .toggle-password-vis {
     position: absolute;
-    right: 45px;
+    right: 5px;
     top: 50%;
     transform: translateY(-50%);
     padding: 0.4rem;
@@ -579,9 +579,14 @@ body.light-theme .modal-content {
     align-items: center;
 }
 
+/* Prevent bounce on click by keeping the same transform during active state */
+.toggle-password-vis:active {
+    transform: translateY(-50%);
+}
+
 .generate-password-btn {
     position: absolute;
-    right: 5px;
+    right: 45px;
     top: 50%;
     transform: translateY(-50%);
     padding: 0.4rem;
@@ -599,6 +604,11 @@ body.light-theme .modal-content {
     align-items: center;
     transition: background 0.2s, border 0.2s, color 0.2s;
     z-index: 2;
+}
+
+/* When a generate button exists, make room for both buttons */
+.password-input-group:has(.generate-password-btn) input {
+    padding-right: 90px;
 }
 
 .generate-password-btn:active {
@@ -973,6 +983,17 @@ body.light-theme .modal-content {
     font-weight: 500;
 }
 
+/* Do not use gradient for the Forgot Password link */
+#forgot-password-link {
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    color: var(--accent-primary) !important;
+}
+#forgot-password-link:hover {
+    text-decoration: underline;
+}
+
 /* Success message styling */
 .success-message {
     color: var(--success-text);
@@ -1116,17 +1137,54 @@ body.light-theme .modal-content {
 
 /* Password Strength Meter */
 .password-strength-meter {
-    height: 4px;
+    height: 0;
     background-color: var(--bg-interactive);
     border-radius: 2px;
-    margin: 0.5rem 0;
+    margin: 0;
     overflow: hidden;
+    opacity: 0;
+    transform: scaleX(0.9);
+    transform-origin: left center;
+    transition: height 180ms ease, margin 180ms ease, opacity 220ms ease, transform 260ms ease;
+}
+
+.password-strength-meter.visible {
+    height: 4px;
+    margin: 0.5rem 0;
+    opacity: 1;
+    transform: scaleX(1);
 }
 
 .strength-meter-bar {
     height: 100%;
     width: 0;
-    transition: width 0.3s ease, background-color 0.3s ease;
+    position: relative;
+    transition: width 380ms cubic-bezier(0.22, 1, 0.36, 1), background-color 240ms ease;
+    overflow: hidden;
+}
+
+/* Shimmer sweep when bar updates */
+.strength-meter-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -40%;
+    height: 100%;
+    width: 40%;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 100%);
+    opacity: 0;
+}
+
+.strength-meter-bar.shine::after {
+    animation: meter-shine 900ms ease;
+}
+
+@keyframes meter-shine {
+    0% { left: -40%; opacity: 0; }
+    10% { opacity: 0.25; }
+    50% { opacity: 0.35; }
+    100% { left: 120%; opacity: 0; }
 }
 
 .password-requirements {
@@ -1245,6 +1303,16 @@ body.light-theme .modal-content {
     font-size: 0.92rem;
     font-weight: 500;
     min-height: 1.2em;
+    opacity: 0;
+    transform: translateY(4px);
+    max-height: 0;
+    transition: opacity 220ms ease, transform 260ms ease, max-height 180ms ease;
+}
+
+.password-guidance.visible {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 48px;
 }
 
 .single-line-checkbox {

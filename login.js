@@ -98,6 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
+            // Best-effort: store credentials in browser password manager
+            storeCredentials(email, password);
             window.location.href = 'index.html';
         } catch (error) {
             showToast(handleError(error), 'error');
@@ -107,60 +109,56 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle signup
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const name = document.getElementById('signup-name').value;
-        const email = document.getElementById('signup-email').value;
-        const password = document.getElementById('signup-password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
-        const termsAccepted = document.getElementById('terms-checkbox').checked;
-
-        if (!termsAccepted) {
-            showToast('Please accept the Terms of Service and Privacy Policy', 'error');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            showToast('Passwords do not match', 'error');
-            return;
-        }
-
-        if (!isPasswordStrong(password)) {
-            showToast('Please choose a stronger password', 'error');
-            return;
-        }
-
         try {
-            const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-            const user = userCredential.user;
-            
-            // Store user's name in the database
-            await firebase.database().ref('users/' + user.uid).set({
-                name: name,
-                email: email,
-                createdAt: new Date().toISOString()
-            });
-            
-            // Send email verification
-            await user.sendEmailVerification();
-            
-            // Clear form and error messages
-            signupForm.reset();
-            showToast('', 'error');
-            showToast('Verification email sent! Please check your inbox.', 'success');
-            
-            // Redirect to verify.html with email
-            setTimeout(() => {
-                window.location.href = `verify.html?email=${encodeURIComponent(email)}`;
-            }, 1200);
-            
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+
+            // Password strength is now optional; indicator still shows guidance
+
+            // Create account
+            let user;
+            try {
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                user = userCredential.user;
+            } catch (error) {
+                showToast(handleError(error), 'error');
+                return;
+            }
+
+            // Best-effort: store credentials in browser password manager
+            storeCredentials(email, password, name);
+
+            // Mark that we should send verification on the verify page and redirect immediately
+            try { localStorage.setItem('pendingVerification', '1'); } catch (_) {}
+            window.location.href = `verify.html?email=${encodeURIComponent(email)}`;
         } catch (error) {
+            // Fallback: if the account actually exists now, redirect anyway
+            const fallbackUser = firebase.auth().currentUser;
+            if (fallbackUser) {
+                const emailValue = document.getElementById('signup-email')?.value || '';
+                window.location.href = `verify.html?email=${encodeURIComponent(emailValue)}`;
+                return;
+            }
             showToast(handleError(error), 'error');
         }
     });
 
-    // Password strength guidance (show only the next unmet requirement)
+    // Password strength guidance (simple weak/medium/strong messaging)
     const passwordInput = document.getElementById('signup-password');
     const passwordGuidance = document.getElementById('password-guidance');
     const strengthMeter = document.getElementById('strength-meter-bar');
+    const passwordMeterContainer = document.getElementById('password-strength-meter');
+
+    // Hide strength UI until typing starts
+    if (passwordMeterContainer) passwordMeterContainer.classList.remove('visible');
+    if (passwordGuidance) passwordGuidance.classList.remove('visible');
     passwordInput.addEventListener('input', function() {
         const password = this.value;
         let guidance = '';
@@ -171,31 +169,41 @@ document.addEventListener('DOMContentLoaded', () => {
         if (/[0-9]/.test(password)) strength += 20;
         if (/[^A-Za-z0-9]/.test(password)) strength += 20;
 
-        // Update strength meter
-        strengthMeter.style.width = strength + '%';
-        strengthMeter.style.backgroundColor = getStrengthColor(strength);
-
-        // Guidance logic
-        if (password.length < 8) {
-            guidance = 'Password should be at least 8 characters (recommended).';
-        } else if (!/[A-Z]/.test(password)) {
-            guidance = 'Password must contain an uppercase letter.';
-        } else if (!/[a-z]/.test(password)) {
-            guidance = 'Password must contain a lowercase letter.';
-        } else if (!/[0-9]/.test(password)) {
-            guidance = 'Password must contain a number.';
-        } else if (!/[^A-Za-z0-9]/.test(password)) {
-            guidance = 'Password must contain a special character.';
+        // Show/hide UI based on input presence
+        if (password.length === 0) {
+            if (passwordMeterContainer) passwordMeterContainer.classList.remove('visible');
+            if (passwordGuidance) passwordGuidance.classList.remove('visible');
+            if (strengthMeter) strengthMeter.style.width = '0%';
+            passwordGuidance.textContent = '';
+            return;
         } else {
-            guidance = 'Strong password!';
-            passwordGuidance.style.color = '#4caf50';
+            if (passwordMeterContainer) passwordMeterContainer.classList.add('visible');
+            if (passwordGuidance) passwordGuidance.classList.add('visible');
+        }
+
+        // Update strength meter
+        const strengthColor = getStrengthColor(strength);
+        // Trigger a subtle shine animation each update
+        strengthMeter.style.width = strength + '%';
+        strengthMeter.classList.remove('shine');
+        void strengthMeter.offsetWidth; // restart animation
+        strengthMeter.classList.add('shine');
+        strengthMeter.style.backgroundColor = strengthColor;
+
+        // Guidance logic: simple labels aligned with meter color
+        if (password.length === 0) {
+            guidance = '';
+        } else if (strength <= 40) {
+            guidance = 'Weak password';
+        } else if (strength <= 60) {
+            guidance = 'Better than nothing';
+        } else if (strength <= 80) {
+            guidance = 'Just works';
+        } else {
+            guidance = 'Good enough';
         }
         passwordGuidance.textContent = guidance;
-        if (guidance === 'Strong password!') {
-            passwordGuidance.style.color = '#4caf50';
-        } else {
-            passwordGuidance.style.color = 'var(--error-text)';
-        }
+        passwordGuidance.style.color = password.length === 0 ? '' : strengthColor;
     });
 
     function isPasswordStrong(password) {
@@ -206,11 +214,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getStrengthColor(strength) {
-        if (strength <= 20) return '#ff4444';
-        if (strength <= 40) return '#ffbb33';
-        if (strength <= 60) return '#ffeb3b';
-        if (strength <= 80) return '#00C851';
-        return '#007E33';
+        if (strength <= 40) return '#ff4444';      // weak - red
+        if (strength <= 60) return '#ffbb33';      // medium - orange
+        if (strength <= 80) return '#00C851';      // good enough - green
+        return '#007E33';                           // strong - dark green
+    }
+
+    // Store credentials using the Credential Management API (best-effort)
+    async function storeCredentials(email, password, name) {
+        try {
+            if (navigator.credentials?.create) {
+                const cred = await navigator.credentials.create({
+                    password: { id: email, name: name || email, password }
+                });
+                if (cred) {
+                    await navigator.credentials.store(cred);
+                }
+            } else if (window.PasswordCredential && navigator.credentials?.store) {
+                const cred = new PasswordCredential({ id: email, name: name || email, password });
+                await navigator.credentials.store(cred);
+            }
+        } catch (_) {
+            // Ignore errors; saving is optional and browser-specific
+        }
     }
 
     // Check if user is already logged in

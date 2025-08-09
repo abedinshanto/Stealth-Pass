@@ -16,6 +16,7 @@
 <body class="dark-theme">
     <div class="login-container">
         <div class="login-modal">
+            <div id="toast"></div>
             <div id="verification-message" class="verification-message" style="display: block;">
                 <i class="fas fa-envelope" style="margin-bottom: 0.2rem; font-size: 2.5rem;"></i>
                 <p>Please check your inbox at <span class="email" id="user-email"></span></p>
@@ -26,6 +27,11 @@
             </div>
         </div>
     </div>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <script src="verify.js"></script>
 </body>
 </html> 

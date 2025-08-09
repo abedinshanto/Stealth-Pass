@@ -31,15 +31,15 @@
             </div>
             
             <!-- Login Form -->
-            <form id="login-form" class="auth-form">
+            <form id="login-form" class="auth-form" autocomplete="off">
                 <div class="form-group">
                     <label for="login-email">Email:</label>
-                    <input type="email" id="login-email" required placeholder="Enter your email">
+                    <input type="email" id="login-email" name="loginEmail" required placeholder="Enter your email" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email">
                 </div>
                 <div class="form-group">
                     <label for="login-password">Password:</label>
                     <div class="password-input-group">
-                        <input type="password" id="login-password" required placeholder="Enter your password">
+                        <input type="password" id="login-password" name="loginPassword" required placeholder="Enter your password" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
                         <button type="button" class="icon-btn toggle-password-vis" aria-label="Show Password">
                             <i class="far fa-eye"></i>
                         </button>
@@ -51,19 +51,19 @@
             </form>
 
             <!-- Signup Form -->
-            <form id="signup-form" class="auth-form hidden">
+            <form id="signup-form" class="auth-form hidden" autocomplete="off">
                 <div class="form-group">
                     <label for="signup-name">Username:</label>
-                    <input type="text" id="signup-name" required placeholder="Enter your username">
+                    <input type="text" id="signup-name" name="signupName" required placeholder="Enter your username" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="form-group">
                     <label for="signup-email">Email:</label>
-                    <input type="email" id="signup-email" required placeholder="Enter your email">
+                    <input type="email" id="signup-email" name="signupEmail" required placeholder="Enter your email" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email">
                 </div>
                 <div class="form-group">
                     <label for="signup-password">Password:</label>
                     <div class="password-input-group">
-                        <input type="password" id="signup-password" required placeholder="Create a password">
+                        <input type="password" id="signup-password" name="signupPassword" required placeholder="Create a password" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
                         <button type="button" class="icon-btn toggle-password-vis" aria-label="Show Password">
                             <i class="far fa-eye"></i>
                         </button>
@@ -76,18 +76,13 @@
                 <div class="form-group">
                     <label for="confirm-password">Confirm Password:</label>
                     <div class="password-input-group">
-                        <input type="password" id="confirm-password" required placeholder="Confirm your password">
+                        <input type="password" id="confirm-password" name="signupPasswordConfirm" required placeholder="Confirm your password" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
                         <button type="button" class="icon-btn toggle-password-vis" aria-label="Show Password">
                             <i class="far fa-eye"></i>
                         </button>
                     </div>
                 </div>
-                <div class="form-group checkbox-group single-line-checkbox">
-                    <label class="terms-checkbox">
-                        <input type="checkbox" id="terms-checkbox" required>
-                        <span>I agree to the <a href="#" id="show-terms">Terms of Service</a> and <a href="#" id="show-privacy">Privacy Policy</a></span>
-                    </label>
-                </div>
+                
                 <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
                 <p class="small-text">Already have an account? <a href="#" id="show-login" class="signup-text">Login</a></p>
             </form>

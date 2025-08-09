@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const successMessage = document.getElementById('success-message');
     const verificationMessage = document.getElementById('verification-message');
     const togglePasswordBtns = document.querySelectorAll('.toggle-password-vis');
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
 
     // Toggle between login and signup forms
     showSignupLink.addEventListener('click', (e) => {
@@ -37,6 +38,24 @@ document.addEventListener('DOMContentLoaded', () => {
         loginForm.classList.add('hidden');
         signupForm.classList.remove('hidden');
         verificationMessage.style.display = 'none';
+    });
+
+    // Handle forgot password
+    forgotPasswordLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value; // Get email from login form
+
+        if (!email) {
+            showToast('Please enter your email address in the login form.', 'error');
+            return;
+        }
+
+        try {
+            await firebase.auth().sendPasswordResetEmail(email);
+            showToast('Password reset email sent! Check your inbox.', 'success');
+        } catch (error) {
+            showToast(handleError(error), 'error');
+        }
     });
 
     showLoginLink.addEventListener('click', (e) => {

@@ -810,9 +810,9 @@ body.light-theme .modal-content {
 }
 
 .animated-gradient {
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background: linear-gradient(-45deg, #ffff00, #ff00ff, #00ffff);
     background-size: 400% 400%;
-    animation: gradient-animation 2s ease infinite;
+    animation: gradient-animation 8s ease infinite;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -872,9 +872,9 @@ body.light-theme .modal-content {
     left: 0;
     right: 0;
     height: 5px;
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background: linear-gradient(-45deg, #ffff00, #ff00ff, #00ffff);
     background-size: 400% 400%;
-    animation: gradient-animation 2s ease infinite;
+    animation: gradient-animation 8s ease infinite;
     border-top-left-radius: 22px;
     border-top-right-radius: 22px;
     z-index: 2;
@@ -964,9 +964,9 @@ body.light-theme .modal-content {
 
 /* Gradient animation for signup text */
 .signup-text {
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background: linear-gradient(-45deg, #ffff00, #ff00ff, #00ffff);
     background-size: 400% 400%;
-    animation: gradient-animation 2s ease infinite;
+    animation: gradient-animation 8s ease infinite;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -1190,9 +1190,9 @@ body.light-theme .modal-content {
 }
 
 .gradient-btn {
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background: linear-gradient(-45deg, #ffff00, #ff00ff, #00ffff);
     background-size: 400% 400%;
-    animation: gradient-animation 2s ease infinite;
+    animation: gradient-animation 8s ease infinite;
     color: #fff !important;
     border: none;
     box-shadow: 0 2px 8px 0 rgba(30, 34, 40, 0.10);

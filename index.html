@@ -21,6 +21,8 @@
 <body class="dark-theme">
     <!-- Main Application Wrapper -->
     <div id="app-wrapper">
+        <div id="toast"></div>
+        <div id="toast-confirm" class="toast-confirm"></div>
         <header class="app-header">
             <div class="logo">
                 <i class="fas fa-lock"></i> Stealth Pass.
@@ -37,17 +39,20 @@
                             <label for="pw-length">Length:<span id="pw-length-value">16</span></label>
                             <input type="range" id="pw-length" min="8" max="64" value="16">
                         </div>
-                         <div class="form-group checkbox-group">
-                            <label><input type="checkbox" id="pw-uppercase" checked> Uppercase (ABC)</label>
-                            <label><input type="checkbox" id="pw-lowercase" checked> Lowercase (abc)</label>
-                            <label><input type="checkbox" id="pw-numbers" checked> Numbers (123)</label>
-                            <label><input type="checkbox" id="pw-symbols" checked> Symbols (#$&)</label>
+                        <div class="include-box">
+                            <div class="include-title">Include</div>
+                            <div class="form-group checkbox-group">
+                                <label class="type-az"><input type="checkbox" id="pw-uppercase" checked> A-Z</label>
+                                <label class="type-az-lower"><input type="checkbox" id="pw-lowercase" checked> a-z</label>
+                                <label class="type-09"><input type="checkbox" id="pw-numbers" checked> 0-9</label>
+                                <label class="type-symbols"><input type="checkbox" id="pw-symbols" checked> !@#$%</label>
+                            </div>
                         </div>
                         <div class="generated-password-display">
-                            <input type="text" id="generated-password-output" readonly placeholder="Click Generate...">
+                            <textarea id="generated-password-output" readonly rows="1" placeholder="Click Generate..."></textarea>
+                            <button id="generate-now-btn" class="icon-btn small-icon-btn" aria-label="Generate Password"><i class="fas fa-sync-alt animated-gradient"></i></button>
                             <button id="copy-generated-pw-btn" class="icon-btn small-icon-btn" aria-label="Copy Generated Password"><i class="far fa-copy"></i></button>
                         </div>
-                        <button id="generate-now-btn" class="btn btn-secondary btn-small">Generate</button>
                     </div>
                 </div>
 
@@ -55,6 +60,7 @@
                 <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
                     <input type="search" id="search-passwords" placeholder="Search Passwords">
+                    <button id="clear-search-btn" class="icon-btn small-icon-btn" aria-label="Clear search" style="display:none"><i class="fas fa-times"></i></button>
                 </div>
 
                  <!-- Theme Toggle -->
@@ -113,8 +119,8 @@
                 <div class="form-group">
                     <label for="account-password">Password:</label>
                     <div class="password-input-group">
-                        <input type="password" id="account-password" required autocomplete="new-password" autocapitalize="none" spellcheck="false">
-                        <button type="button" class="icon-btn toggle-password-vis" aria-label="Show Password"><i class="far fa-eye"></i></button>
+                        <input type="text" id="account-password" required autocomplete="new-password" autocapitalize="none" spellcheck="false">
+                        <button type="button" class="icon-btn toggle-password-vis" aria-label="Show Password"><i class="far fa-eye-slash"></i></button>
                         <button type="button" class="icon-btn generate-password-btn" aria-label="Generate Password"><i class="fas fa-star animated-gradient"></i></button>
                     </div>
                 </div>

@@ -32,6 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const togglePasswordBtns = document.querySelectorAll('.toggle-password-vis');
     const forgotPasswordLink = document.getElementById('forgot-password-link');
 
+    // Toast helper for login/signup
+    function showToast(message, type = 'error') {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.className = '';
+        toast.classList.add('toast-show');
+        toast.classList.add(type === 'success' ? 'toast-success' : type === 'info' ? 'toast-info' : 'toast-error');
+        clearTimeout(window._toastTimeout);
+        window._toastTimeout = setTimeout(() => {
+            toast.classList.remove('toast-show');
+        }, 2000);
+    }
+
     // Toggle between login and signup forms
     showSignupLink.addEventListener('click', (e) => {
         e.preventDefault();
@@ -52,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             await firebase.auth().sendPasswordResetEmail(email);
-            showToast('Password reset email sent! Check your inbox.', 'success');
+            showToast('Password reset email sent', 'success');
         } catch (error) {
             showToast(handleError(error), 'error');
         }

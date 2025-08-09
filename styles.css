@@ -515,12 +515,25 @@ body.light-theme .modal-content {
     transform: scale(1);
 }
 
-.login-modal h2,
-.account-form-modal h2 {
+.login-modal h2, h2 {
     text-align: center;
     margin-bottom: 1.5rem;
     color: var(--text-primary);
     font-weight: 600;
+}
+
+.account-form-modal {
+    background-color: var(--bg-secondary);
+    padding: 2.1rem 1.5rem 1.5rem 1.5rem;
+    border-radius: 22px;
+    box-shadow: 0 12px 40px 0 rgba(30, 34, 40, 0.45), 0 1.5px 6px 0 rgba(30, 34, 40, 0.10);
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    overflow: hidden;
+    margin: 1.2rem 0;
+    border: 1.5px solid var(--border-color);
+    transition: box-shadow 0.3s, border 0.3s;
 }
 
 .login-modal h2 i {
@@ -533,13 +546,7 @@ body.light-theme .modal-content {
     margin-bottom: 1rem;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 0.4rem;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
+
 
 .form-group input[type="text"],
 .form-group input[type="email"],

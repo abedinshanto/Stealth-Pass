@@ -162,9 +162,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveAccount(account) {
         const userId = getCurrentUserId();
-        if (!userId) return;
+        if (!userId) {
+            console.error("Error: User not authenticated. Cannot save account.");
+            return;
+        }
         const id = account.id || firebase.database().ref().child('accounts').push().key;
-        firebase.database().ref('accounts/' + userId + '/' + id).set(account, loadAccounts);
+        firebase.database().ref('accounts/' + userId + '/' + id).set(account)
+            .then(() => {
+                console.log("Account saved successfully:", account);
+                loadAccounts();
+            })
+            .catch((error) => {
+                console.error("Error saving account to Firebase:", error);
+                alert("Failed to save account. Please check console for details.");
+            });
     }
 
     function deleteAccount(id) {

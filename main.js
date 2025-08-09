@@ -212,8 +212,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Favicon cache helpers
+    const FAVICON_CACHE_KEY_PREFIX = 'favicon_cache_';
+    const FAVICON_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+    function getFaviconCacheKey(domain) {
+        return FAVICON_CACHE_KEY_PREFIX + domain;
+    }
+
+    function readFaviconCache(domain) {
+        try {
+            const raw = localStorage.getItem(getFaviconCacheKey(domain));
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object' && parsed.url && parsed.ts) {
+                return parsed;
+            }
+            return null;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function writeFaviconCache(domain, url) {
+        try {
+            localStorage.setItem(
+                getFaviconCacheKey(domain),
+                JSON.stringify({ url: url, ts: Date.now() })
+            );
+        } catch (_) {
+            // ignore
+        }
+    }
+
+    async function fetchFavicon(websiteUrl) {
+        try {
+            const url = new URL(websiteUrl);
+            const domain = url.hostname;
+            const cached = readFaviconCache(domain);
+
+            if (cached && (Date.now() - cached.ts < FAVICON_CACHE_MAX_AGE_MS)) {
+                return cached.url;
+            }
+
+            // Google Favicon API
+            const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+
+            // We don't actually need to fetch the image here, just return the URL.
+            // The browser will fetch it when the <img> tag is rendered.
+            // We just need to cache the URL itself.
+            writeFaviconCache(domain, faviconUrl);
+            return faviconUrl;
+
+        } catch (error) {
+            console.error("Error fetching favicon:", error);
+            return null;
+        }
+    }
+
     // Render accounts list from a plain object map
-    function renderAccounts(accounts) {
+    async function renderAccounts(accounts) {
         const accountList = document.getElementById('account-list');
         if (!accountList) return;
         const placeholder = document.getElementById('empty-list-placeholder');
@@ -227,14 +285,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (placeholder) placeholder.style.display = 'none';
-        keys.forEach((id) => {
+
+        for (const id of keys) {
             const acc = accounts[id];
             const li = document.createElement('li');
             li.className = 'account-item';
             li.dataset.id = id;
+
+            const faviconHtml = acc.website ? `<img src="${await fetchFavicon(acc.website) || 'https://www.google.com/s2/favicons?domain=default.com&sz=64'}" alt="Favicon" class="favicon-img">` : '<i class="fas fa-user"></i>';
+
             li.innerHTML = `
                 <div class="account-info">
-                    <span class="account-user-icon blue-circle"><i class="fas fa-user"></i></span>
+                    <span class="account-user-icon blue-circle">
+                        ${faviconHtml}
+                    </span>
                     <div class="account-type-name">
                         <span class="account-type">${acc.name || ''}</span>
                         <span class="account-username-display">${acc.username || ''}</span>
@@ -276,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dropdown.style.display = 'none';
                 showToast('Password Copied', 'success');
             });
-        });
+        }
     }
 
     // Account management
@@ -367,7 +431,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('account-name-input').value;
         const username = document.getElementById('account-username').value;
         const password = document.getElementById('account-password').value;
-        const website = document.getElementById('account-website').value;
+        let website = document.getElementById('account-website').value;
+        // Autofill https:// if not already present
+        if (website && !website.startsWith('http://') && !website.startsWith('https://')) {
+            website = 'https://' + website;
+        }
         if (id) {
             const ok = await showConfirmToast('Save changes to this account?');
             if (!ok) return;

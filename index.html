@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stealth Pass - Password Manager</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Google Fonts -->
@@ -106,7 +107,7 @@
     <div id="account-modal" class="overlay">
         <div class="modal-content account-form-modal">
             <h2 id="account-modal-title">Add New Account</h2>
-            <form id="account-form">
+            <form id="account-form" novalidate autocomplete="off">
                 <input type="hidden" id="account-id">
                 <div class="form-group">
                     <label for="account-name-input">Account Name:</label>
@@ -119,14 +120,14 @@
                 <div class="form-group">
                     <label for="account-password">Password:</label>
                     <div class="password-input-group">
-                        <input type="text" id="account-password" required autocomplete="new-password" autocapitalize="none" spellcheck="false">
+                        <input type="text" id="account-password" required autocomplete="off" autocapitalize="none" spellcheck="false">
                         <button type="button" class="icon-btn toggle-password-vis" aria-label="Show Password"><i class="far fa-eye-slash"></i></button>
                         <button type="button" class="icon-btn generate-password-btn" aria-label="Generate Password"><i class="fas fa-star animated-gradient"></i></button>
                     </div>
                 </div>
                  <div class="form-group">
                     <label for="account-website">Website (Optional):</label>
-                    <input type="url" id="account-website" placeholder="https://example.com">
+                    <input type="text" id="account-website" placeholder="https://example.com">
                 </div>
                 <div class="modal-actions">
                      <button type="button" id="cancel-account-btn" class="btn btn-secondary">Cancel</button>

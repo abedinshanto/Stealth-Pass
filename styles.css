@@ -950,6 +950,17 @@ body.light-theme .modal-content {
     font-size: 0.95em;
 }
 
+.password-requirements .requirement::before {
+    content: '×';
+    color: var(--error-text);
+    font-weight: bold;
+}
+
+.password-requirements .requirement.met::before {
+    content: '✓';
+    color: var(--success-text);
+}
+
 .small-text {
     margin-top: 1.1rem;
     font-size: 0.85rem;
@@ -1413,4 +1424,11 @@ body.light-theme .modal-content {
     color: var(--text-secondary);
     font-weight: 400;
     margin-top: 0.1em;
-} 
+}
+
+.favicon-img {
+    width: 100%; /* Fill the parent container */
+    height: 100%; /* Fill the parent container */
+    border-radius: 50%; /* Make it circular */
+    object-fit: contain; /* Ensure the entire image is visible and centered */
+}
